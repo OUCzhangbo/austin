@@ -57,9 +57,9 @@ public class Task implements Runnable {
         shieldService.shield(taskInfo);
 
         // 2.平台通用去重
-        if (CollUtil.isNotEmpty(taskInfo.getReceiver())) {
+        /*if (CollUtil.isNotEmpty(taskInfo.getReceiver())) {
             deduplicationRuleService.duplication(taskInfo);
-        }
+        }*/
 
         // 3. 真正发送消息
         if (CollUtil.isNotEmpty(taskInfo.getReceiver())) {
