@@ -26,6 +26,7 @@ public abstract class AbstractDeduplicationBuilder implements Builder {
     }
 
     public DeduplicationParam getParamsFromConfig(Integer key, String duplicationConfig, TaskInfo taskInfo) {
+        //deduplicationConfig {"deduplication_10":{"num":1,"time":300},"deduplication_20":{"num":5}}
         JSONObject object = JSONObject.parseObject(duplicationConfig);
         if (Objects.isNull(object)) {
             return null;

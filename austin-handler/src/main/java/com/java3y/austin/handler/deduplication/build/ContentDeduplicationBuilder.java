@@ -22,6 +22,9 @@ public class ContentDeduplicationBuilder extends AbstractDeduplicationBuilder im
 
     @Override
     public DeduplicationParam build(String deduplication, TaskInfo taskInfo) {
+        //deduplication {"deduplication_10":{"num":1,"time":300},"deduplication_20":{"num":5}}
+        //内容去重
+        //根据去重类型的code值10，得到对应的Json去重参数数据{"num":1,"time":300}，将参数数据转换成对应的去重参数对象
         DeduplicationParam deduplicationParam = getParamsFromConfig(deduplicationType, deduplication, taskInfo);
         if (Objects.isNull(deduplicationParam)) {
             return null;

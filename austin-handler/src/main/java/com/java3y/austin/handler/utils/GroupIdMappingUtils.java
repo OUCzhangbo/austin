@@ -22,8 +22,9 @@ public class GroupIdMappingUtils {
      */
     public static List<String> getAllGroupIds() {
         List<String> groupIds = new ArrayList<>();
-        for (ChannelType channelType : ChannelType.values()) {
-            for (MessageType messageType : MessageType.values()) {
+        for (ChannelType channelType : ChannelType.values()) { //遍历渠道类型 IM push sms email ..
+            for (MessageType messageType : MessageType.values()) { //遍历消息类型 通知notice 营销marketing 验证码auth_code
+                //短信  sms.auth_code
                 groupIds.add(channelType.getCodeEn() + "." + messageType.getCodeEn());
             }
         }
@@ -38,6 +39,7 @@ public class GroupIdMappingUtils {
      * @return
      */
     public static String getGroupIdByTaskInfo(TaskInfo taskInfo) {
+        //EnumUtil可以复用
         String channelCodeEn = EnumUtil.getEnumByCode(taskInfo.getSendChannel(), ChannelType.class).getCodeEn();
         String msgCodeEn = EnumUtil.getEnumByCode(taskInfo.getMsgType(), MessageType.class).getCodeEn();
         return channelCodeEn + "." + msgCodeEn;

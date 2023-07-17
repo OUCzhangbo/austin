@@ -93,10 +93,13 @@ public enum ChannelType implements PowerfulEnum {
     /**
      * 通过code获取class
      *
+     *
      * @param code
      * @return
      */
     public static Class<? extends ContentModel> getChanelModelClassByCode(Integer code) {
+        //整个代码的含义是：从枚举类型的值中找到第一个具有与给定代码（code）相等的代码的元素，并返回该元素的
+        // contentModelClass，如果找不到满足条件的元素，则返回 null
         return Arrays.stream(values()).filter(channelType -> Objects.equals(code, channelType.getCode()))
                 .map(ChannelType::getContentModelClass)
                 .findFirst().orElse(null);

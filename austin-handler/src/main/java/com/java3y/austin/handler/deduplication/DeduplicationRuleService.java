@@ -15,6 +15,7 @@ import java.util.Objects;
  * @author 3y.
  * @date 2021/12/12
  * 去重服务
+ * 程序的入口，启动类
  */
 @Service
 public class DeduplicationRuleService {
@@ -28,12 +29,14 @@ public class DeduplicationRuleService {
     private DeduplicationHolder deduplicationHolder;
 
     public void duplication(TaskInfo taskInfo) {
+        //实际上应该从分布式控制中心nacos中获取
         // 配置样例：{"deduplication_10":{"num":1,"time":300},"deduplication_20":{"num":5}}
         String deduplicationConfig = config.getProperty(DEDUPLICATION_RULE_KEY, CommonConstant.EMPTY_JSON_OBJECT);
 
         // 去重
-        List<Integer> deduplicationList = EnumUtil.getCodeList(DeduplicationType.class);
+        List<Integer> deduplicationList = EnumUtil.getCodeList(DeduplicationType.class);//拿到去重的类型有哪些10 20
         for (Integer deduplicationType : deduplicationList) {
+            //构建去重参数
             DeduplicationParam deduplicationParam = deduplicationHolder.selectBuilder(deduplicationType).build(deduplicationConfig, taskInfo);
             if (Objects.nonNull(deduplicationParam)) {
                 deduplicationHolder.selectService(deduplicationType).deduplication(deduplicationParam);

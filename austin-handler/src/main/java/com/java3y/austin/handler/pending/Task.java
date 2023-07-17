@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
  * @author 3y
  */
 @Data
-@Accessors(chain = true)
+@Accessors(chain = true)//开启链式set，方便创建对象的时候设置属性
 @Slf4j
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -57,12 +57,14 @@ public class Task implements Runnable {
         shieldService.shield(taskInfo);
 
         // 2.平台通用去重
-        /*if (CollUtil.isNotEmpty(taskInfo.getReceiver())) {
+        if (CollUtil.isNotEmpty(taskInfo.getReceiver())) {
             deduplicationRuleService.duplication(taskInfo);
-        }*/
+        }
 
         // 3. 真正发送消息
         if (CollUtil.isNotEmpty(taskInfo.getReceiver())) {
+            //Handle接口->BaseHandler抽象类->EmailHandler、SmsHandler...容器初始化的时候这些不同的处理类已经被实例化
+            // 并被放到了HandlerHolder中，handlerHolder.route（40）可以得到EmalilHandler
             handlerHolder.route(taskInfo.getSendChannel()).doHandler(taskInfo);
         }
 

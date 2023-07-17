@@ -65,6 +65,7 @@ public class TaskInfo {
      * message_template表存储的content是JSON(所有内容都会塞进去)
      * 不同的渠道要发送的内容不一样(比如发push会有img，而短信没有)
      * 所以会有ContentModel
+     * 根据json解析成不同的对象
      */
     private ContentModel contentModel;
 

@@ -39,10 +39,13 @@ public class ConsumeServiceImpl implements ConsumeService {
 
     @Override
     public void consume2Send(List<TaskInfo> taskInfoLists) {
+        //消费者组C1，c2,...c33,每一个消费者组对应一个GroupId
+        //CollUtil.getFirst(taskInfoLists.iterator())获取集合中的第一个元素，无论集合的具体类型是什么（例如 List、Set、Queue 等
         String topicGroupId = GroupIdMappingUtils.getGroupIdByTaskInfo(CollUtil.getFirst(taskInfoLists.iterator()));
         for (TaskInfo taskInfo : taskInfoLists) {
             logUtils.print(LogParam.builder().bizType(LOG_BIZ_TYPE).object(taskInfo).build(), AnchorInfo.builder().ids(taskInfo.getReceiver()).businessId(taskInfo.getBusinessId()).state(AnchorState.RECEIVE.getCode()).build());
             Task task = context.getBean(Task.class).setTaskInfo(taskInfo);
+            //taskPendingHolder.route()拿到消费者组对应的线程池，excute(Runnable runnable)方法执行任务
             taskPendingHolder.route(topicGroupId).execute(task);
         }
     }

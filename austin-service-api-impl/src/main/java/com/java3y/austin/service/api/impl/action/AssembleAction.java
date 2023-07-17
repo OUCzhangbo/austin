@@ -48,12 +48,15 @@ public class AssembleAction implements BusinessProcess<SendTaskModel> {
         Long messageTemplateId = sendTaskModel.getMessageTemplateId();
 
         try {
-            Optional<MessageTemplate> messageTemplate = messageTemplateDao.findById(messageTemplateId);
+            //Optional相当于用一个集合接收返回的参数，方便对结果null值判断
+            Optional<MessageTemplate> messageTemplate = messageTemplateDao.findById(messageTemplateId);//springdatejpa查询数据库
+            //模板为空/模板is_deleted=1，代表模板已经逻辑删除
             if (!messageTemplate.isPresent() || messageTemplate.get().getIsDeleted().equals(CommonConstant.TRUE)) {
                 context.setNeedBreak(true).setResponse(BasicResultVO.fail(RespStatusEnum.TEMPLATE_NOT_FOUND));
                 return;
             }
             if (BusinessCode.COMMON_SEND.getCode().equals(context.getCode())) {
+                //组装参数
                 List<TaskInfo> taskInfos = assembleTaskInfo(sendTaskModel, messageTemplate.get());
                 sendTaskModel.setTaskInfo(taskInfos);
             } else if (BusinessCode.RECALL.getCode().equals(context.getCode())) {
@@ -80,6 +83,7 @@ public class AssembleAction implements BusinessProcess<SendTaskModel> {
 
             TaskInfo taskInfo = TaskInfo.builder()
                     .messageTemplateId(messageTemplate.getId())
+                    //TODO (questions)模板ID、模板类型、日期（如何实现溯源）
                     .businessId(TaskInfoUtils.generateBusinessId(messageTemplate.getId(), messageTemplate.getTemplateType()))
                     .receiver(new HashSet<>(Arrays.asList(messageParam.getReceiver().split(String.valueOf(StrUtil.C_COMMA)))))
                     .idType(messageTemplate.getIdType())
@@ -104,22 +108,24 @@ public class AssembleAction implements BusinessProcess<SendTaskModel> {
     private static ContentModel getContentModelValue(MessageTemplate messageTemplate, MessageParam messageParam) {
 
         // 得到真正的ContentModel 类型
-        Integer sendChannel = messageTemplate.getSendChannel();
+        Integer sendChannel = messageTemplate.getSendChannel();//获取消息发送渠道30 sms，40 email。。
+        //根据sendChannel的code值，获取对应内容模板ContentModel的Class类
+        //得到类的全类名
         Class<? extends ContentModel> contentModelClass = ChannelType.getChanelModelClassByCode(sendChannel);
 
         // 得到模板的 msgContent 和 入参
         Map<String, String> variables = messageParam.getVariables();
-        JSONObject jsonObject = JSON.parseObject(messageTemplate.getMsgContent());
+        JSONObject jsonObject = JSON.parseObject(messageTemplate.getMsgContent());//{“title":"{$title}","content":"{$content}","url":""}}
 
 
         // 通过反射 组装出 contentModel
-        Field[] fields = ReflectUtil.getFields(contentModelClass);
+        Field[] fields = ReflectUtil.getFields(contentModelClass);//什么格式？全限定名+name title content url
         ContentModel contentModel = ReflectUtil.newInstance(contentModelClass);
         for (Field field : fields) {
-            String originValue = jsonObject.getString(field.getName());
+            String originValue = jsonObject.getString(field.getName());//{$title}
 
             if (StrUtil.isNotBlank(originValue)) {
-                String resultValue = ContentHolderUtil.replacePlaceHolder(originValue, variables);
+                String resultValue = ContentHolderUtil.replacePlaceHolder(originValue, variables);//originValue {$title} resultValue "邮件发送测试1"
                 Object resultObj = JSONUtil.isJsonObj(resultValue) ? JSONUtil.toBean(resultValue, field.getType()) : resultValue;
                 ReflectUtil.setFieldValue(contentModel, field, resultObj);
             }

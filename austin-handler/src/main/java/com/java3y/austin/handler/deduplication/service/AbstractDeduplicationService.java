@@ -17,6 +17,7 @@ import java.util.Set;
  * @author 3y
  * @date 2021/12/9
  * 去重服务
+ * 模板方法设计模式
  */
 @Slf4j
 public abstract class AbstractDeduplicationService implements DeduplicationService {
@@ -40,7 +41,7 @@ public abstract class AbstractDeduplicationService implements DeduplicationServi
     @Override
     public void deduplication(DeduplicationParam param) {
         TaskInfo taskInfo = param.getTaskInfo();
-
+        //传入this对象，主要是为了得到当前 去重的key
         Set<String> filterReceiver = limitService.limitFilter(this, taskInfo, param);
 
         // 剔除符合去重条件的用户

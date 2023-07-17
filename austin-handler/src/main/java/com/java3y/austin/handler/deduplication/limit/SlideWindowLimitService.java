@@ -54,10 +54,13 @@ public class SlideWindowLimitService extends AbstractLimitService {
         Set<String> filterReceiver = new HashSet<>(taskInfo.getReceiver().size());
         long nowTime = System.currentTimeMillis();
         for (String receiver : taskInfo.getReceiver()) {
+            //SW_(模板+内容+接受者形成的唯一ID)->set集合的key
             String key = LIMIT_TAG + deduplicationSingleKey(service, taskInfo, receiver);
+            //Snowflake是一种分布式ID生成算法，它可以生成在分布式环境下具有唯一性的ID
             String scoreValue = String.valueOf(IdUtil.getSnowflake().nextId());
             String score = String.valueOf(nowTime);
-            if (redisUtils.execLimitLua(redisScript, Collections.singletonList(key), String.valueOf(param.getDeduplicationTime() * 1000), score, String.valueOf(param.getCountNum()), scoreValue)) {
+            //execLimitLua(lua脚本，List集合传入key,参数列表..) 限流时间，score,限流次数，scoreValue  param.getDeduplicationTime()
+            if (redisUtils.execLimitLua(redisScript, Collections.singletonList(key), String.valueOf(900 * 1000), score, String.valueOf(param.getCountNum()), scoreValue)) {
                 filterReceiver.add(receiver);
             }
 

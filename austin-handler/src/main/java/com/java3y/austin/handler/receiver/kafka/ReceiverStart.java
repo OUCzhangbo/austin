@@ -28,6 +28,9 @@ import java.util.Optional;
  * @date 2021/12/4
  */
 @Service
+/*如果属性名为 austin.mq.pipeline 的属性存在且其值为 MessageQueuePipeline.KAFKA，那么条件将会满足，
+相应的配置或组件将会被加载。条件注解可以帮助我们根据属性的值来动态地调整应用程序的行为，实现更加灵活和可配置的应用程序配置*/
+//当austin.mq.pipeline=kafka的时候，才会创建ReceiverStart实例
 @ConditionalOnProperty(name = "austin.mq.pipeline", havingValue = MessageQueuePipeline.KAFKA)
 @Slf4j
 public class ReceiverStart {
@@ -58,6 +61,7 @@ public class ReceiverStart {
     @PostConstruct
     public void init() {
         for (int i = 0; i < groupIds.size(); i++) {
+            //每一个groupId也就是每一个消息类型创建一个消费者组，也就是创建一个Receive对象，所以Receiver是多例的
             context.getBean(Receiver.class);
         }
     }
@@ -94,6 +98,7 @@ public class ReceiverStart {
         factory.setRecordFilterStrategy(consumerRecord -> {
             if (Optional.ofNullable(consumerRecord.value()).isPresent()) {
                 for (Header header : consumerRecord.headers()) {
+                    //生产者写进去的tagID与配置文件中的tagId做比较，不相等返回true,消息被丢弃
                     if (header.key().equals(tagIdKey) && new String(header.value()).equals(new String(tagIdValue.getBytes(StandardCharsets.UTF_8)))) {
                         return false;
                     }

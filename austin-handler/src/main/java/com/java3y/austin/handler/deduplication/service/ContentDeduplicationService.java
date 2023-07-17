@@ -1,5 +1,6 @@
 package com.java3y.austin.handler.deduplication.service;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.fastjson.JSON;
 import com.java3y.austin.common.domain.TaskInfo;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ContentDeduplicationService extends AbstractDeduplicationService {
 
-
+    //内容去重继承父类中的deduplication方法，调用limitService.limitFilter()方法，该LimitService有两个实现类，一个为
+    //SlideWindowLimitService，另一个为SimpleLimitService，通过@Qualifier("SlideWindowLimitService")标识文字去重的时候
+    //我们使用的是SlideWindowLimitService
     @Autowired
     public ContentDeduplicationService(@Qualifier("SlideWindowLimitService") LimitService limitService) {
         this.limitService = limitService;
@@ -36,7 +39,10 @@ public class ContentDeduplicationService extends AbstractDeduplicationService {
      */
     @Override
     public String deduplicationSingleKey(TaskInfo taskInfo, String receiver) {
-        return DigestUtil.md5Hex(taskInfo.getMessageTemplateId() + receiver
-                + JSON.toJSONString(taskInfo.getContentModel()));
+
+        /*return DigestUtil.md5Hex(taskInfo.getMessageTemplateId() + receiver
+                + JSON.toJSONString(taskInfo.getContentModel()));*/
+        //便于调试
+        return "templateId" + receiver + JSON.toJSONString(taskInfo.getContentModel());
     }
 }

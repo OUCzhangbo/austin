@@ -33,6 +33,7 @@ public class SimpleLimitService extends AbstractLimitService {
         Map<String, String> readyPutRedisReceiver = new HashMap<>(taskInfo.getReceiver().size());
         //redis数据隔离
         List<String> keys = deduplicationAllKey(service, taskInfo).stream().map(key -> LIMIT_TAG + key).collect(Collectors.toList());
+        //先将数据一起查出来，放进map中，下边循环消费者先得到value的时候直接从map中get,不用每查一个连接一次redis，下边的更新也是同样的思想（批量）
         Map<String, String> inRedisValue = redisUtils.mGet(keys);
 
         for (String receiver : taskInfo.getReceiver()) {

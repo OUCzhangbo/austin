@@ -39,6 +39,8 @@ public abstract class BaseHandler implements Handler {
      * 初始化渠道与Handler的映射关系
      */
     @PostConstruct
+    //@PostConstruct注解：对象创建完成之后调用该初始化方法
+    //抽象类本身不能被实例化，因此 @PostConstruct 注解只有在抽象类的子类对象被创建时才会生效
     private void init() {
         handlerHolder.putHandler(channelCode, this);
     }
